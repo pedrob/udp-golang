@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"os"
+	"time"
 )
 
 func main() {
@@ -18,14 +18,12 @@ func main() {
 		log.Fatal("Fatal error:", err)
 	}
 	defer connection.Close()
+	//envia os dados
 	fmt.Fprintf(connection, "E ai servidor")
+	err = connection.SetDeadline(time.Now().Add(time.Second * 15))
+	if err != nil {
+		log.Fatal("Fatal error:", err)
+	}
 	n, server, err := connection.ReadFromUDP(buffer)
-	fmt.Printf("%s\n%s\n%d\n", buffer, server, n)
-}
-
-func clientLog() {
-	f, _ := os.OpenFile("info.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	defer f.Close()
-
-	log.SetOutput(f)
+	fmt.Printf("msg: %s\nadress: %s\nmsg length: %d\nmsg time: %s\n", buffer, server, n, time.Now().Local())
 }
