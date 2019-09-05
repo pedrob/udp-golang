@@ -19,11 +19,8 @@ func main() {
 	}
 	defer connection.Close()
 	fmt.Fprintf(connection, "E ai servidor")
-	_, _, err = connection.ReadFromUDP(buffer)
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Printf("%s\n", buffer)
+	n, server, err := connection.ReadFromUDP(buffer)
+	fmt.Printf("%s\n%s\n%d\n", buffer, server, n)
 }
 
 func clientLog() {
@@ -31,5 +28,4 @@ func clientLog() {
 	defer f.Close()
 
 	log.SetOutput(f)
-	//log.Println("njasjnxja")
 }

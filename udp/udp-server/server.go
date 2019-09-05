@@ -8,8 +8,6 @@ import (
 	"strconv"
 )
 
-//without check errors
-
 func main() {
 	listenClients()
 }
@@ -30,29 +28,28 @@ func listenClients() {
 		log.Fatal("Fatal error:", err)
 	}
 	for {
-		_, clientAddr, _ := server.ReadFromUDP(buffer)
+		n, clientAddr, _ := server.ReadFromUDP(buffer)
 		if err != nil {
 			fmt.Println(err)
 			continue
 		}
 		receivedPackets++
-		packetsLog("pacote recebido de: ", clientAddr, receivedPackets, sentPackets)
-		fmt.Printf("%s", buffer)
+		packetsLog("pacote recebido de: ", clientAddr, receivedPackets, sentPackets, n)
+		fmt.Printf("%s\n", buffer)
 		go sendToClient(server, clientAddr)
 	}
 }
 
 func sendToClient(connection *net.UDPConn, clientAddr *net.UDPAddr) {
-	_, err := connection.WriteToUDP([]byte("E ai cliente"), clientAddr)
+	n, err := connection.WriteToUDP([]byte("E ai cliente\n"), clientAddr)
 	if err != nil {
 		fmt.Println(err)
-		return
 	}
 	sentPackets++
-	packetsLog("pacote enviado para: ", clientAddr, receivedPackets, sentPackets)
+	packetsLog("pacote enviado para: ", clientAddr, receivedPackets, sentPackets, n)
 }
 
-func packetsLog(msg string, addr *net.UDPAddr, rcvdTotal, sndTotal int) {
+func packetsLog(msg string, addr *net.UDPAddr, rcvdTotal, sndTotal, n int) {
 	f, err := os.OpenFile("info.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		fmt.Println(err)
@@ -63,5 +60,5 @@ func packetsLog(msg string, addr *net.UDPAddr, rcvdTotal, sndTotal int) {
 	rcvd := strconv.Itoa(rcvdTotal)
 	snd := strconv.Itoa(sndTotal)
 	log.SetOutput(f)
-	log.Println(msg, addr, "/// total enviado:", snd, "/total recebido:", rcvd)
+	log.Println(msg, addr, "/total enviado:", snd, "/total recebido:", rcvd, "/tamanho da mensagem:", n)
 }
